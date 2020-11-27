@@ -2,7 +2,7 @@
   <div>
     <div style="display: flex;justify-content: space-between;">
       <el-button icon="el-icon-plus" type="primary" @click="showAddSalaryView">添加工资账套</el-button>
-      <el-button icon="el-icon-refresh" type="success"></el-button>
+      <el-button icon="el-icon-refresh" type="success" @click="initSalaries"></el-button>
     </div>
     <div style="margin-top: 10px;">
       <el-table :data="salaries" border stripe>
@@ -26,15 +26,15 @@
           <el-table-column width="70" prop="accumulationFundBase" label="基数"></el-table-column>
         </el-table-column>
         <el-table-column label="操作">
-          <template>
-            <el-button>编辑</el-button>
-            <el-button type="danger">删除</el-button>
+          <template slot-scope="scope">
+            <el-button @click="showEditSalaryView(scope.row)">编辑</el-button>
+            <el-button type="danger" @click="deleteSalary(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <el-dialog
-        title="添加工资账套"
+        :title="dialogTitle"
         :visible.sync="dialogVisible"
         width="50%"
         :before-close="handleClose">
@@ -42,11 +42,13 @@
         <el-steps direction="vertical" :active="activeItemIndex">
           <el-step :title="item" v-for="(item, index) in salaryItemName" :key="index"></el-step>
         </el-steps>
-        <el-input style="width: 200px;" v-show="activeItemIndex==index" :placeholder="'请输入' + item + '...'" v-for="(item, index) in salaryItemName" :key="index"></el-input>
+        <el-input v-model="salary[title]" style="width: 200px;" v-show="activeItemIndex==index"
+                  :placeholder="'请输入' + salaryItemName[index] + '...'" v-for="(value, title, index) in salary"
+                  :key="index"></el-input>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="preStep">{{activeItemIndex==9?'取消':'上一步'}}</el-button>
-        <el-button type="primary" @click="nextStep">{{activeItemIndex==9?'完成':'下一步'}}</el-button>
+        <el-button @click="preStep">{{ activeItemIndex == 10 ? '取消' : '上一步' }}</el-button>
+        <el-button type="primary" @click="nextStep">{{ activeItemIndex == 10 ? '完成' : '下一步' }}</el-button>
       </span>
     </el-dialog>
   </div>
@@ -61,19 +63,34 @@ export default {
     return {
       salaries: [],
       dialogVisible: false,
-      activeItemIndex: 1,
+      activeItemIndex: 0,
+      dialogTitle: '添加工资账套',
       salaryItemName: [
-          '基本工资',
-          '交通补助',
-          '午餐补助',
-          '奖金',
-          '养老金比率',
-          '养老金基数',
-          '医疗保险比率',
-          '医疗保险基数',
-          '公积金比率',
-          '公积金基数'
-      ]
+        '基本工资',
+        '交通补助',
+        '午餐补助',
+        '奖金',
+        '养老金比率',
+        '养老金基数',
+        '医疗保险比率',
+        '医疗保险基数',
+        '公积金比率',
+        '公积金基数',
+        '账套名称'
+      ],
+      salary: {
+        basicSalary: 0,
+        trafficSalary: 0,
+        lunchSalary: 0,
+        bonus: 0,
+        pensionPer: 0,
+        pensionBase: 0,
+        medicalPer: 0,
+        medicalBase: 0,
+        accumulationFundPer: 0,
+        accumulationFundBase: 0,
+        name: ''
+      }
     }
   },
   mounted() {
@@ -88,10 +105,41 @@ export default {
       })
     },
     showAddSalaryView() {
+      this.salary = {
+        basicSalary: 0,
+        trafficSalary: 0,
+        lunchSalary: 0,
+        bonus: 0,
+        pensionPer: 0,
+        pensionBase: 0,
+        medicalPer: 0,
+        medicalBase: 0,
+        accumulationFundPer: 0,
+        accumulationFundBase: 0,
+        name: ''
+      }
+      this.dialogTitle = '添加工资账套';
       this.dialogVisible = true;
+      this.activeItemIndex = 0;
     },
     nextStep() {
-      if (this.activeItemIndex == 9) {
+      if (this.activeItemIndex == 10) {
+        if (this.salary.id) {
+          putRequest("/salary/sob/", this.salary).then(resp => {
+            if (resp) {
+              this.initSalaries();
+              this.dialogVisible = false;
+              this.activeItemIndex = 0;
+            }
+          })
+        } else {
+          postRequest("/salary/sob/", this.salary).then(resp => {
+            if (resp) {
+              this.initSalaries();
+              this.dialogVisible = false;
+            }
+          })
+        }
         return;
       }
       this.activeItemIndex++;
@@ -99,17 +147,63 @@ export default {
     preStep() {
       if (this.activeItemIndex == 0) {
         return;
-      } else if (this.activeItemIndex == 9) {
+      } else if (this.activeItemIndex == 10) {
         this.dialogVisible = false;
         return;
       }
       this.activeItemIndex--;
+    },
+    handleClose() {
+      this.dialogVisible = false;
+      this.activeItemIndex = 0;
+      this.salary = {
+        basicSalary: 0,
+        trafficSalary: 0,
+        lunchSalary: 0,
+        bonus: 0,
+        pensionPer: 0,
+        pensionBase: 0,
+        medicalPer: 0,
+        medicalBase: 0,
+        accumulationFundPer: 0,
+        accumulationFundBase: 0,
+        name: ''
+      }
+    },
+    deleteSalary(data) {
+      this.$confirm('此操作将删除该工资账套，是否继续？', '提示', {
+        cancelButtonText: '取消',
+        confirmButtonText: '确定'
+      }).then(() => {
+        deleteRequest("/salary/sob/" + data.id).then(resp => {
+          if (resp) {
+            this.initSalaries();
+          }
+        })
+      }).catch(() => {
+        this.$message.info('取消此操作');
+      })
+    },
+    showEditSalaryView(data) {
+      this.dialogTitle = '修改工资账套';
+      this.dialogVisible = true;
+      this.salary.basicSalary = data.basicSalary;
+      this.salary.trafficSalary = data.trafficSalary;
+      this.salary.bonus = data.bonus;
+      this.salary.pensionPer = data.pensionPer;
+      this.salary.pensionBase = data.pensionBase;
+      this.salary.medicalPer = data.medicalPer;
+      this.salary.medicalBase = data.medicalBase;
+      this.salary.accumulationFundPer = data.accumulationFundPer;
+      this.salary.accumulationFundBase = data.accumulationFundBase;
+      this.salary.name = data.name;
+      this.salary.id = data.id;
     }
   }
 }
 </script>
 
-<style scoped>
+<style>
 
 </style>
 
