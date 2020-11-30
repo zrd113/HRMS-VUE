@@ -5,16 +5,19 @@
         <div class="title">
           微人事
         </div>
-        <el-dropdown class="userInfo" @command="commandHandler">
+        <div>
+          <el-button @click="goChat" icon="el-icon-bell" type="text" style="margin-right: 8px;color: #000000;"></el-button>
+          <el-dropdown class="userInfo" @command="commandHandler">
           <span class="el-dropdown-link">
             {{ user.name }}<i><img :src="user.userface" alt="用户头像"></i>
           </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
-            <el-dropdown-item command="setting">设置</el-dropdown-item>
-            <el-dropdown-item command="logout" divided>注销登录</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
+              <el-dropdown-item command="setting">设置</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>注销登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -77,6 +80,9 @@ export default {
           });
         });
       }
+    },
+    goChat() {
+      this.$router.push('/chat');
     }
   }
 }

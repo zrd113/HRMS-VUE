@@ -10,57 +10,58 @@
         <el-table-column prop="department.name" label="所属部门" width="120" align="left"></el-table-column>
         <el-table-column label="所属部门" align="center">
           <template slot-scope="scope">
-            <el-tooltip placement="right">
+            <el-tooltip placement="right" v-if="scope.row.salary">
               <div slot="content">
                 <table>
                   <tr>
                     <td>基本工资</td>
-                    <td>{{scope.row.salary.basicSalary}}</td>
+                    <td>{{ scope.row.salary.basicSalary }}</td>
                   </tr>
                   <tr>
                     <td>交通补助</td>
-                    <td>{{scope.row.salary.trafficSalary}}</td>
+                    <td>{{ scope.row.salary.trafficSalary }}</td>
                   </tr>
                   <tr>
                     <td>午餐补助</td>
-                    <td>{{scope.row.salary.lunchSalary}}</td>
+                    <td>{{ scope.row.salary.lunchSalary }}</td>
                   </tr>
                   <tr>
                     <td>奖金</td>
-                    <td>{{scope.row.salary.bonus}}</td>
+                    <td>{{ scope.row.salary.bonus }}</td>
                   </tr>
                   <tr>
                     <td>养老金比率</td>
-                    <td>{{scope.row.salary.pensionPer}}</td>
+                    <td>{{ scope.row.salary.pensionPer }}</td>
                   </tr>
                   <tr>
                     <td>养老金基数</td>
-                    <td>{{scope.row.salary.pensionBase}}</td>
+                    <td>{{ scope.row.salary.pensionBase }}</td>
                   </tr>
                   <tr>
                     <td>医疗保险比率</td>
-                    <td>{{scope.row.salary.medicalPer}}</td>
+                    <td>{{ scope.row.salary.medicalPer }}</td>
                   </tr>
                   <tr>
                     <td>医疗保险基数</td>
-                    <td>{{scope.row.salary.medicalBase}}</td>
+                    <td>{{ scope.row.salary.medicalBase }}</td>
                   </tr>
                   <tr>
                     <td>公积金比率</td>
-                    <td>{{scope.row.salary.accumulationFundPer}}</td>
+                    <td>{{ scope.row.salary.accumulationFundPer }}</td>
                   </tr>
                   <tr>
                     <td>公积金基数</td>
-                    <td>{{scope.row.salary.accumulationFundBase}}</td>
+                    <td>{{ scope.row.salary.accumulationFundBase }}</td>
                   </tr>
                   <tr>
                     <td>启用时间</td>
-                    <td>{{scope.row.salary.createDate}}</td>
+                    <td>{{ scope.row.salary.createDate }}</td>
                   </tr>
                 </table>
               </div>
-              <el-tag>{{scope.row.salary.name}}</el-tag>
+              <el-tag>{{ scope.row.salary.name }}</el-tag>
             </el-tooltip>
+            <el-tag v-else>暂未设置</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center">
@@ -87,6 +88,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <div style="display: flex;justify-content: flex-end;">
+        <el-pagination
+            background
+            @current-change="currentChange"
+            @size-change="sizeChange"
+            layout="sizes, prev, pager, next, jumper, ->, total, slot"
+            :total="total">
+        </el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -100,7 +110,10 @@ export default {
     return {
       emps: [],
       salaries: [],
-      currentSalary: -1
+      currentSalary: null,
+      total: 0,
+      currentPage: 1,
+      currentSize: 10
     }
   },
   mounted() {
@@ -109,9 +122,10 @@ export default {
   },
   methods: {
     initEmps() {
-      getRequest("/salary/sobcfg/").then(resp => {
+      getRequest("/salary/sobcfg/?page=" + this.currentPage + '&size=' + this.currentSize).then(resp => {
         if (resp) {
           this.emps = resp.data;
+          this.total = resp.total;
         }
       })
     },
@@ -123,14 +137,28 @@ export default {
       })
     },
     showPop(data) {
-      this.currentSalary = data.id;
+      if (data != null) {
+        this.currentSalary = data.id;
+      } else {
+        this.currentSalary = null;
+      }
     },
     hidePop(data) {
-      putRequest("/salary/sobcfg/?eid=" + data.id + '&sid=' + this.currentSalary).then(resp => {
-        if (resp) {
-          this.initEmps();
-        }
-      })
+      if (this.currentSalary && this.currentSalary != data.salary.id) {
+        putRequest("/salary/sobcfg/?eid=" + data.id + '&sid=' + this.currentSalary).then(resp => {
+          if (resp) {
+            this.initEmps();
+          }
+        })
+      }
+    },
+    currentChange(page) {
+      this.currentPage = page;
+      this.initEmps();
+    },
+    sizeChange(size) {
+      this.currentSize = size;
+      this.initEmps();
     }
   }
 }

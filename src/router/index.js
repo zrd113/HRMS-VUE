@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../views/Login'
 import Home from "@/views/Home"
-import Test from "@/views/Test"
+import FriendChat from "@/views/chat/FriendChat";
 
 Vue.use(VueRouter)
 
@@ -16,12 +16,14 @@ const routes = [
   {
     path: '/home',
     name: 'Home',
-    component: Home
-  },
-  {
-    path: '/test',
-    name: 'Test',
-    component: Test
+    component: Home,
+    children: [
+      {
+        path: '/chat',
+        name: '在线聊天',
+        component: FriendChat
+      }
+    ]
   }
 ]
 
