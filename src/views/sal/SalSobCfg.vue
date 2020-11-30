@@ -65,7 +65,25 @@
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
-            <el-button type="danger">修改工资账套</el-button>
+            <el-popover
+                placement="left"
+                title="修改工资账套"
+                width="200"
+                @show="showPop(scope.row.salary)"
+                @hide="hidePop(scope.row)"
+                trigger="click">
+              <div>
+                <el-select v-model="currentSalary" placeholder="请选择" size="mini">
+                  <el-option
+                      v-for="item in salaries"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
+              </div>
+              <el-button type="danger" slot="reference">修改工资账套</el-button>
+            </el-popover>
           </template>
         </el-table-column>
       </el-table>
@@ -80,17 +98,37 @@ export default {
   name: "SalSobCfg",
   data() {
     return {
-      emps: []
+      emps: [],
+      salaries: [],
+      currentSalary: -1
     }
   },
   mounted() {
     this.initEmps();
+    this.initSalaries();
   },
   methods: {
     initEmps() {
       getRequest("/salary/sobcfg/").then(resp => {
         if (resp) {
           this.emps = resp.data;
+        }
+      })
+    },
+    initSalaries() {
+      getRequest("/salary/sobcfg/salaries/").then(resp => {
+        if (resp) {
+          this.salaries = resp;
+        }
+      })
+    },
+    showPop(data) {
+      this.currentSalary = data.id;
+    },
+    hidePop(data) {
+      putRequest("/salary/sobcfg/?eid=" + data.id + '&sid=' + this.currentSalary).then(resp => {
+        if (resp) {
+          this.initEmps();
         }
       })
     }
