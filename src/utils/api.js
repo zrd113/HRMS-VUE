@@ -2,7 +2,6 @@ import axios from 'axios';
 //在vue文件里可以直接使用，在js文件里需要引入
 import {Message} from "element-ui";
 import router from "@/router";
-import ro from "element-ui/src/locale/lang/ro";
 
 axios.interceptors.response.use(success => {
                           //http的响应码            服务端返回的响应码

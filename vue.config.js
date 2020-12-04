@@ -9,6 +9,11 @@ proxyObj['/'] = {
     }
 }
 
+proxyObj['/ws'] = {
+    ws: true,
+    target: "ws://localhost:8080"
+}
+
 module.exports = {
     devServer: {
         host: 'localhost',

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import {getRequest} from "@/utils/api";
 
 Vue.use(Vuex)
 
@@ -74,7 +75,7 @@ const store = new Vuex.Store({
         },
         initData(context) {
             context.commit('INIT_DATA')
-            getRequest("/chat/hrs").then(resp => {
+            getRequest("/chat/hrs/").then(resp => {
                 if (resp) {
                     context.commit('INIT_HR', resp);
                 }
