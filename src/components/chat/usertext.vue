@@ -1,6 +1,7 @@
 <template>
   <div id="uesrtext">
-    <textarea placeholder="按 Ctrl + Enter 发送" v-model="content" v-on:keyup="addMessage"></textarea>
+    <textarea placeholder="按 Ctrl + Enter 发送" v-model="content"></textarea>
+    <el-button type="primary" @click="addMessage">发送</el-button>
   </div>
 </template>
 
@@ -20,14 +21,14 @@ export default {
   ]),
   methods: {
     addMessage(e) {
-      if (e.ctrlKey && e.keyCode === 13 && this.content.length) {
+      //if (e.ctrlKey && e.keyCode === 13 && this.content.length) {
         let msgObj = new Object();
         msgObj.to = this.currentSession.username;
         msgObj.content = this.content;
         this.$store.state.stomp.send('/ws/chat', {}, JSON.stringify(msgObj));
         this.$store.commit('addMessage', msgObj);
         this.content = '';
-      }
+      //}
     }
   }
 }
@@ -45,7 +46,7 @@ export default {
   > textarea {
     padding: 10px;
     width: 100%;
-    height: 100%;
+    //height: 100%;
     border: none;
     outline: none;
   }

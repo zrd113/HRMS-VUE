@@ -10,6 +10,7 @@ export const initMenu = (router, store) => {
                 let fmtRoutes = formatRouter(data);
                 router.addRoutes(fmtRoutes);
                 store.commit('initRoutes', fmtRoutes);
+                store.dispatch('connect');
             }
         })
 

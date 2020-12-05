@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {getRequest} from "@/utils/api";
+import Stomp from 'stompjs'
+import SockJS from 'sockjs-client'
+import '@/utils/sockjs'
+import {getRequest} from "@/utils/api"
+import {Notification} from "element-ui";
 
 Vue.use(Vuex)
 
@@ -59,7 +63,7 @@ const store = new Vuex.Store({
                     let receiveMsg = JSON.parse(msg.body);
                     if (!context.state.currentSession || receiveMsg.from != context.state.currentSession.username) {
                         Notification.info({
-                            title: '【' + receiveMsg.fromNickname + '】发来一条消息',
+                            title: '【' + receiveMsg.fromNickName + '】发来一条消息',
                             message: receiveMsg.content.length > 10 ? receiveMsg.content.substr(0, 10) : receiveMsg.content,
                             position: 'bottom-right'
                         })
