@@ -16,6 +16,10 @@
       <el-form-item prop="password">
         <el-input type="text" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码"></el-input>
       </el-form-item>
+      <el-form-item prop="code">
+        <el-input style="width: 250px;" type="text" v-model="loginForm.code" auto-complete="off" placeholder="点击图片更换验证码"></el-input>
+        <img :src="vcUrl" @click="updateVerifyCode" />
+      </el-form-item>
       <el-checkbox class="loginRemember" v-model="checked">记住密码</el-checkbox>
       <el-button type="primary" style="width: 100%" @click="submitLogin">登录</el-button>
     </el-form>
@@ -31,14 +35,17 @@ export default {
     return {
       rules: {
         username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-        password: [{required: true, message: '请输入密码', trigger: 'blur'}]
+        password: [{required: true, message: '请输入密码', trigger: 'blur'}],
+        code: [{required: true, message: '请输入验证码', trigger: 'blur'}],
       },
       checked: true,
       loginForm: {
         username: 'admin',
-        password: '123'
+        password: '123',
+        code: ''
       },
-      loading: false
+      loading: false,
+      vcUrl: '/verifyCode?time=' + new Date()
     }
   },
   methods: {
@@ -53,6 +60,8 @@ export default {
               window.sessionStorage.setItem("user", JSON.stringify(resp.obj));
               let path = this.$route.query.redirect;
               this.$router.replace((path == '/' || path == undefined) ? '/home' : path);
+            } else {
+              this.updateVerifyCode();
             }
           })
         } else {
@@ -60,6 +69,9 @@ export default {
           return false;
         }
       })
+    },
+    updateVerifyCode() {
+      this.vcUrl = '/verifyCode?time=' + new Date();
     }
   }
 }
@@ -86,5 +98,10 @@ export default {
 .loginRemember {
   text-align: left;
   margin: 0px 0px 20px 0px;
+}
+
+.el-form-item__content {
+  display: flex;
+  align-items: center;
 }
 </style>

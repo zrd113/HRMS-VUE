@@ -91,6 +91,7 @@ const store = new Vuex.Store({
 store.watch(function (state) {
     return state.sessions
 }, function (val) {
+    console.log('val:' + JSON.stringify(val));
     localStorage.setItem('vue-chat-session', JSON.stringify(val));
 }, {
     deep: true
