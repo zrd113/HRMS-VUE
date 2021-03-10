@@ -1,4 +1,4 @@
-# vuehr
+# HRMS-VUE
 
 ## Project setup
 ```
