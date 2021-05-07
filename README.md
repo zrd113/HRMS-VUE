@@ -1,24 +1,12 @@
-# HRMS-VUE
+## 项目介绍
+HRMS-VUE是一个人力资源管理系统前端部分，采用Vue开发
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-## 记录
+## 项目技术栈
+1. Vue
+2. ElementUI
+3. Vuex
+4. Vue-router
+5. axios
 
 ### 响应封装
 失败分为两种，一种是业务上的失败，一种是服务端返回的异常信息，所以这里http响应码为200也不一定返回正确结果。
